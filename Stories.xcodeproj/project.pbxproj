@@ -12,6 +12,7 @@
 		D50B199B220B6D5B0031B7C5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D50B1999220B6D5B0031B7C5 /* Main.storyboard */; };
 		D50B199D220B6D5E0031B7C5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D50B199C220B6D5E0031B7C5 /* Assets.xcassets */; };
 		D50B19A0220B6D5E0031B7C5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D50B199E220B6D5E0031B7C5 /* LaunchScreen.storyboard */; };
+		D50B19AB220B9D3D0031B7C5 /* browser-add-readable-stream in Resources */ = {isa = PBXBuildFile; fileRef = D50B19AA220B9D3D0031B7C5 /* browser-add-readable-stream */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		D50B199C220B6D5E0031B7C5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D50B199F220B6D5E0031B7C5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D50B19A1220B6D5E0031B7C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D50B19AA220B9D3D0031B7C5 /* browser-add-readable-stream */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "browser-add-readable-stream"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +56,7 @@
 		D50B1994220B6D5B0031B7C5 /* Stories */ = {
 			isa = PBXGroup;
 			children = (
+				D50B19AA220B9D3D0031B7C5 /* browser-add-readable-stream */,
 				D50B1995220B6D5B0031B7C5 /* AppDelegate.swift */,
 				D50B1997220B6D5B0031B7C5 /* ViewController.swift */,
 				D50B1999220B6D5B0031B7C5 /* Main.storyboard */,
@@ -125,6 +128,7 @@
 				D50B19A0220B6D5E0031B7C5 /* LaunchScreen.storyboard in Resources */,
 				D50B199D220B6D5E0031B7C5 /* Assets.xcassets in Resources */,
 				D50B199B220B6D5B0031B7C5 /* Main.storyboard in Resources */,
+				D50B19AB220B9D3D0031B7C5 /* browser-add-readable-stream in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
