@@ -9,6 +9,10 @@
 import UIKit
 import WebKit
 
+enum JSError: Error {
+    case uploadBlobFailed(String)
+}
+
 class ViewController: UIViewController, WKScriptMessageHandler, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     var webView: WKWebView!
@@ -23,9 +27,8 @@ class ViewController: UIViewController, WKScriptMessageHandler, UIImagePickerCon
         let method = body["method"]! as! String
         switch method {
         case "loaded":
-            uploadBlob(data: "Hello, World".data(using: .utf8)!, callback: { hash in
-                print("Uploaded hello: \(hash)")
-            })
+            // TODO: handle this, e.g. by delaying all actual calls until loaded
+            print("IPFS ready")
         default:
             let requestId = body["id"]! as! Int
             let response = body["response"]
@@ -67,20 +70,29 @@ class ViewController: UIViewController, WKScriptMessageHandler, UIImagePickerCon
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         // TODO: Use edited image?
         let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
-        uploadBlob(data: image.jpegData(compressionQuality: 0.8)!, callback: { hash in
-            print("Uploaded image: \(hash)")
+        uploadBlob(data: image.jpegData(compressionQuality: 0.8)!, callback: { error, hash in
+            if let hash = hash {
+                print("Uploaded image: \(hash)")
+            } else {
+                print("Error: \(error ?? JSError.uploadBlobFailed("missing hash"))")
+            }
         })
         // TODO: Does it make sense?
         self.dismiss(animated: true, completion: nil)
     }
 
-    func uploadBlob(data: Data, callback: @escaping (String) -> Void) {
+    func uploadBlob(data: Data, callback: @escaping (Error?, String?) -> Void) {
         let base64String = data.base64EncodedString()
         requestId = requestId + 1
         webView.evaluateJavaScript("uploadBlob(\(requestId), '\(base64String)')")
         callbacksByRequestId[requestId] = { error, response in
-            let dataDict = (response as! NSArray)[0] as! NSDictionary
-            callback(dataDict["hash"]! as! String)
+            if let dataDict = (response as? NSArray)?[0] as? NSDictionary {
+                callback(nil, dataDict["hash"] as? String)
+            } else if let error = error as? String {
+                callback(JSError.uploadBlobFailed(error), nil)
+            } else {
+                callback(JSError.uploadBlobFailed("Missing response"), nil)
+            }
         }
     }
 
