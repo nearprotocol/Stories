@@ -48,7 +48,7 @@ class ViewController: UIViewController, WKScriptMessageHandler, UIImagePickerCon
         webView = WKWebView(frame: CGRect.zero, configuration: config)
         self.view.addSubview(webView)
 
-        let webUrl = Bundle.main.bundleURL.appendingPathComponent("browser-add-readable-stream/")
+        let webUrl = Bundle.main.bundleURL.appendingPathComponent("web/")
         webView.loadFileURL(webUrl.appendingPathComponent("index.html"),
                             allowingReadAccessTo: webUrl)
     }
@@ -70,9 +70,16 @@ class ViewController: UIViewController, WKScriptMessageHandler, UIImagePickerCon
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         // TODO: Use edited image?
         let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
-        uploadBlob(data: image.jpegData(compressionQuality: 0.8)!, callback: { error, hash in
+        self.uploadBlob(data: image.jpegData(compressionQuality: 0.8)!, callback: { error, hash in
             if let hash = hash {
                 print("Uploaded image: \(hash)")
+                self.postVideo(hash: hash, callback: { error in
+                    if let error = error {
+                        print("Error posting to Near: \(error)")
+                        return
+                    }
+                    print("postVideo success")
+                })
             } else {
                 print("Error: \(error ?? JSError.uploadBlobFailed("missing hash"))")
             }
@@ -92,6 +99,18 @@ class ViewController: UIViewController, WKScriptMessageHandler, UIImagePickerCon
                 callback(JSError.uploadBlobFailed(error), nil)
             } else {
                 callback(JSError.uploadBlobFailed("Missing response"), nil)
+            }
+        }
+    }
+
+    func postVideo(hash: String, callback: @escaping (Error?) -> Void) {
+        requestId = requestId + 1
+        webView.evaluateJavaScript("postVideo(\(requestId), '\(hash)')")
+        callbacksByRequestId[requestId] = { error, response in
+            if let error = error as? String {
+                callback(JSError.uploadBlobFailed(error))
+            } else {
+                callback(nil)
             }
         }
     }
