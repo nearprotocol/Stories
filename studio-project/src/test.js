@@ -23,10 +23,10 @@ describe("Videos", function() {
     });
 
   
-      it("can be stored on chain", async function() {
-        await contract.postVideo({ hash: "whatever" });
-  
-        const videos = await contract.getLastVideos();
-        expect(videos).toEqual(["whatever"]);
-      });
+    it("can be stored on chain", async function() {
+      await contract.postVideo({ hash: "whatever" });
+
+      const videos = await contract.getLastVideos();
+      expect(videos).toEqual(["whatever"]);
+    });
   });

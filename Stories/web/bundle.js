@@ -7,13 +7,13 @@
 
 const WebTorrent = require('webtorrent');
 
-const torrentClient = new WebTorrent()
+const torrentClient = new WebTorrent({ dht: true });
 
 function uploadBlob(id, blobBase64) {
     const blob = new Buffer(blobBase64, 'base64');
     torrentClient.seed(blob, (torrent) => {
         console.log('torrent', torrent);
-        _postMessage({ id, method: 'uploadBlob', response: { hash: torrent.infoHash } });
+        _postMessage({ id, method: 'uploadBlob', response: { hash: torrent.infoHash, magnetURI: torrent.magnetURI } });
     });
 }
 
