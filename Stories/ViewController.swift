@@ -93,7 +93,7 @@ class ViewController: UIViewController, WKScriptMessageHandler, UIImagePickerCon
         requestId = requestId + 1
         webView.evaluateJavaScript("uploadBlob(\(requestId), '\(base64String)')")
         callbacksByRequestId[requestId] = { error, response in
-            if let dataDict = (response as? NSArray)?[0] as? NSDictionary {
+            if let dataDict = response as? NSDictionary {
                 callback(nil, dataDict["hash"] as? String)
             } else if let error = error as? String {
                 callback(JSError.uploadBlobFailed(error), nil)

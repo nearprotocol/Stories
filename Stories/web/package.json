@@ -1,0 +1,16 @@
+{
+  "name": "stories-web",
+  "version": "0.0.1",
+  "description": "If you have a number of files that you'd like to add to IPFS and end up with a hash representing the directory containing your files, you can invoke [`ipfs.add`](https://github.com/ipfs/interface-ipfs-core/blob/master/SPEC/FILES.md#add) with an array of objects.",
+  "main": "index.js",
+  "dependencies": {
+    "webtorrent": "^0.103.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify index.js > bundle.js"
+  },
+  "author": "Vladimir Grichina <vgrichina@gmail.com>",
+  "license": "MIT"
+}

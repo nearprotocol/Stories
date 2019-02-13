@@ -3,18 +3,15 @@
 /* global Ipfs */
 /* eslint-env browser */
 
-const repoPath = `ipfs-${Math.random()}`
-const ipfs = new Ipfs({ repo: repoPath })
+const WebTorrent = require('webtorrent');
 
-ipfs.on('ready', () => {
-    console.log("IPFS ready");
-    _postMessage({ method: 'loaded' });
-});
+const torrentClient = new WebTorrent()
 
 function uploadBlob(id, blobBase64) {
-    const blob = ipfs.types.Buffer.from(blobBase64, 'base64');
-    ipfs.add(blob, (error, response) => {
-        _postMessage({ id, method: 'uploadBlob', response, error: error && error.toString() });
+    const blob = new Buffer(blobBase64, 'base64');
+    torrentClient.seed(blob, (torrent) => {
+        console.log('torrent', torrent);
+        _postMessage({ id, method: 'uploadBlob', response: { hash: torrent.infoHash } });
     });
 }
 
@@ -52,3 +49,4 @@ function postVideo(id, hash) {
     });
 }
 
+Object.assign(window, { uploadBlob, postVideo })
