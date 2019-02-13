@@ -23,7 +23,7 @@ function _postMessage(message) {
 const config = {
     baseUrl: 'https://studio.nearprotocol.com/contract-api',
     nodeUrl: 'https://studio.nearprotocol.com/devnet',
-    contractName: 'studio-wv52jrdjn'
+    contractName: 'studio-dub97v3ts'
 };
 Cookies.set('fiddleConfig', config);
 
