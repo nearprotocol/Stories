@@ -1,0 +1,21 @@
+PODS:
+  - SwiftyCam (3.0.0)
+
+DEPENDENCIES:
+  - "SwiftyCam (from `git@github.com:nearprotocol/SwiftyCam.git`)"
+
+EXTERNAL SOURCES:
+  SwiftyCam:
+    :git: "git@github.com:nearprotocol/SwiftyCam.git"
+
+CHECKOUT OPTIONS:
+  SwiftyCam:
+    :commit: f7ba6f2f306fd21769629245dbbf7d86f7d56125
+    :git: "git@github.com:nearprotocol/SwiftyCam.git"
+
+SPEC CHECKSUMS:
+  SwiftyCam: 67338308e3a5a3545c2aeee17e2c964eba4cf49f
+
+PODFILE CHECKSUM: 43af750c70d827f7dfaeff262df2bf23965f310d
+
+COCOAPODS: 1.6.0
