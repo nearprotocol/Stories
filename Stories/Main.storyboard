@@ -27,10 +27,10 @@
             </objects>
             <point key="canvasLocation" x="-868" y="-354"/>
         </scene>
-        <!--View Controller-->
+        <!--Web Wrapper View Controller-->
         <scene sceneID="f9k-hn-MMx">
             <objects>
-                <viewController storyboardIdentifier="WebWrapper" id="EI2-ki-Jqd" customClass="ViewController" customModule="Stories" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="WebWrapper" id="EI2-ki-Jqd" customClass="WebWrapperViewController" customModule="Stories" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="YAd-vm-XYw"/>
                         <viewControllerLayoutGuide type="bottom" id="GVT-kp-KzN"/>
@@ -44,6 +44,41 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wrF-Ch-9g3" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-868" y="359"/>
+        </scene>
+        <!--Photo View Controller-->
+        <scene sceneID="bEh-iv-bRJ">
+            <objects>
+                <viewController storyboardIdentifier="PhotoViewController" id="oH9-ew-SYU" customClass="PhotoViewController" customModule="Stories" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="JIu-tf-eEG"/>
+                        <viewControllerLayoutGuide type="bottom" id="iQX-0i-lSW"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleAspectFill" id="6PZ-wp-VBK">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cur-SG-86a">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r4E-hx-yjZ">
+                                <rect key="frame" x="10" y="10" width="30" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" image="cancel"/>
+                                <connections>
+                                    <action selector="cancel:" destination="oH9-ew-SYU" eventType="touchUpInside" id="Tdk-VM-iqx"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </view>
+                    <connections>
+                        <outlet property="backgroundImageView" destination="cur-SG-86a" id="h0q-9Z-LoH"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0pZ-hQ-J7M" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="725.60000000000002" y="-356.67166416791605"/>
         </scene>
         <!--Camera View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -106,6 +141,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="cancel" width="30" height="30"/>
         <image name="flashOutline" width="18" height="30"/>
         <image name="flipCamera" width="30" height="23"/>
     </resources>
