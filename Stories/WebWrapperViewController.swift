@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  WebWrapperViewController.swift
 //  Stories
 //
 //  Created by Vladimir Grichina on 2/6/19.
@@ -13,7 +13,7 @@ enum JSError: Error {
     case uploadBlobFailed(String)
 }
 
-class ViewController: UIViewController, WKScriptMessageHandler, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     var webView: WKWebView!
 

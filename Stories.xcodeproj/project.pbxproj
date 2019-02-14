@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		42CD92BD879430F382434450 /* Pods_Stories.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D36EE4947DD7BDA41BAB3B3 /* Pods_Stories.framework */; };
 		D50B1996220B6D5B0031B7C5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D50B1995220B6D5B0031B7C5 /* AppDelegate.swift */; };
-		D50B1998220B6D5B0031B7C5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D50B1997220B6D5B0031B7C5 /* ViewController.swift */; };
+		D50B1998220B6D5B0031B7C5 /* WebWrapperViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D50B1997220B6D5B0031B7C5 /* WebWrapperViewController.swift */; };
 		D50B19A0220B6D5E0031B7C5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D50B199E220B6D5E0031B7C5 /* LaunchScreen.storyboard */; };
 		D50B19AB220B9D3D0031B7C5 /* web in Resources */ = {isa = PBXBuildFile; fileRef = D50B19AA220B9D3D0031B7C5 /* web */; };
 		D599185E221547E8000932CE /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D599185A221547E7000932CE /* CameraViewController.swift */; };
@@ -18,6 +18,7 @@
 		D5991861221547E8000932CE /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D599185D221547E8000932CE /* PhotoViewController.swift */; };
 		D599186322154829000932CE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D599186222154829000932CE /* Main.storyboard */; };
 		D5991867221558CA000932CE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D5991866221558CA000932CE /* Assets.xcassets */; };
+		D599186922155DE5000932CE /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D599186822155DE5000932CE /* ContainerViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,7 +27,7 @@
 		9D36EE4947DD7BDA41BAB3B3 /* Pods_Stories.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Stories.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D50B1992220B6D5B0031B7C5 /* Stories.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Stories.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D50B1995220B6D5B0031B7C5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		D50B1997220B6D5B0031B7C5 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		D50B1997220B6D5B0031B7C5 /* WebWrapperViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebWrapperViewController.swift; sourceTree = "<group>"; };
 		D50B199F220B6D5E0031B7C5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D50B19A1220B6D5E0031B7C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D50B19AA220B9D3D0031B7C5 /* web */ = {isa = PBXFileReference; lastKnownFileType = folder; path = web; sourceTree = "<group>"; };
@@ -36,6 +37,7 @@
 		D599185D221547E8000932CE /* PhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
 		D599186222154829000932CE /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		D5991866221558CA000932CE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D599186822155DE5000932CE /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,11 +93,12 @@
 				D5991859221547B5000932CE /* SwiftyCam */,
 				D50B19AA220B9D3D0031B7C5 /* web */,
 				D50B1995220B6D5B0031B7C5 /* AppDelegate.swift */,
-				D50B1997220B6D5B0031B7C5 /* ViewController.swift */,
+				D50B1997220B6D5B0031B7C5 /* WebWrapperViewController.swift */,
 				D5991866221558CA000932CE /* Assets.xcassets */,
 				D599186222154829000932CE /* Main.storyboard */,
 				D50B199E220B6D5E0031B7C5 /* LaunchScreen.storyboard */,
 				D50B19A1220B6D5E0031B7C5 /* Info.plist */,
+				D599186822155DE5000932CE /* ContainerViewController.swift */,
 			);
 			path = Stories;
 			sourceTree = "<group>";
@@ -233,7 +236,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				D599185F221547E8000932CE /* SwiftyRecordButton.swift in Sources */,
-				D50B1998220B6D5B0031B7C5 /* ViewController.swift in Sources */,
+				D50B1998220B6D5B0031B7C5 /* WebWrapperViewController.swift in Sources */,
+				D599186922155DE5000932CE /* ContainerViewController.swift in Sources */,
 				D50B1996220B6D5B0031B7C5 /* AppDelegate.swift in Sources */,
 				D5991860221547E8000932CE /* VideoViewController.swift in Sources */,
 				D599185E221547E8000932CE /* CameraViewController.swift in Sources */,
