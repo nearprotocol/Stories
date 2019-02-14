@@ -77,7 +77,9 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
 	}
 
 	func swiftyCam(_ swiftyCam: SwiftyCamViewController, didFinishProcessVideoAt url: URL) {
-		let newVC = VideoViewController(videoURL: url)
+        let storyboard = UIStoryboard.init(name: "Main", bundle: Bundle.main)
+		let newVC = storyboard.instantiateViewController(withIdentifier: "VideoViewController") as! VideoViewController
+        newVC.videoURL = url
 		self.present(newVC, animated: true, completion: nil)
 	}
 
