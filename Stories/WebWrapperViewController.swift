@@ -42,6 +42,7 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
         super.viewDidLoad()
 
         NotificationCenter.default.addObserver(self, selector: #selector(photoTaken(_:)), name: .DidSelectPhoto, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(videoTaken(_:)), name: .DidSelectVideo, object: nil)
 
         let contentController = WKUserContentController()
         contentController.add(self, name: "callback")
@@ -62,19 +63,35 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
     @objc func photoTaken(_ notification: Notification) {
         let image = notification.object as! UIImage
         self.uploadBlob(data: image.jpegData(compressionQuality: 0.8)!, callback: { error, hash in
-            if let hash = hash {
-                print("Uploaded image: \(hash)")
-                self.postVideo(hash: hash, callback: { error in
-                    if let error = error {
-                        print("Error posting to Near: \(error)")
-                        return
-                    }
-                    print("postVideo success")
-                })
-            } else {
-                print("Error: \(error ?? JSError.uploadBlobFailed("missing hash"))")
-            }
+            self.uploadedBlob(error: error, hash: hash)
         })
+    }
+
+    @objc func videoTaken(_ notification: Notification) {
+        let videoURL = notification.object as! URL
+        do {
+            let data = try Data.init(contentsOf: videoURL)
+            self.uploadBlob(data: data, callback: { error, hash in
+                self.uploadedBlob(error: error, hash: hash)
+            })
+        } catch {
+            print("Unexpected error: \(error)")
+        }
+    }
+
+    func uploadedBlob(error: Error?, hash: String?) {
+        if let hash = hash {
+            print("Uploaded blob: \(hash)")
+            self.postVideo(hash: hash, callback: { error in
+                if let error = error {
+                    print("Error posting to Near: \(error)")
+                    return
+                }
+                print("postVideo success")
+            })
+        } else {
+            print("Error: \(error ?? JSError.uploadBlobFailed("missing hash"))")
+        }
     }
 
     func uploadBlob(data: Data, callback: @escaping (Error?, String?) -> Void) {

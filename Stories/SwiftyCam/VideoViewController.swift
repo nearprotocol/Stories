@@ -17,6 +17,10 @@ import UIKit
 import AVFoundation
 import AVKit
 
+extension NSNotification.Name {
+    static let DidSelectVideo = Notification.Name("DidSelectVideo")
+}
+
 class VideoViewController: UIViewController {
     
     override var prefersStatusBarHidden: Bool {
@@ -66,6 +70,11 @@ class VideoViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         player?.play()
+    }
+
+    @IBAction func send(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+        NotificationCenter.default.post(name: .DidSelectVideo, object: videoURL)
     }
     
     @IBAction func cancel(_ sender: Any?) {
