@@ -41,6 +41,8 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        NotificationCenter.default.addObserver(self, selector: #selector(photoTaken(_:)), name: .DidSelectPhoto, object: nil)
+
         let contentController = WKUserContentController()
         contentController.add(self, name: "callback")
         let config = WKWebViewConfiguration()
@@ -52,24 +54,13 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
         webView.loadFileURL(webUrl.appendingPathComponent("index.html"),
                             allowingReadAccessTo: webUrl)
     }
-    
-    @IBAction func takePhoto(_ sender: Any) {
-        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
-            let myPickerController = UIImagePickerController()
-            myPickerController.delegate = self;
-            myPickerController.sourceType = .photoLibrary
-            self.present(myPickerController, animated: true, completion: nil)
-        }
-    }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        // TODO: Does it make sense?
-        self.dismiss(animated: true, completion: nil)
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        // TODO: Use edited image?
-        let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
+    @objc func photoTaken(_ notification: Notification) {
+        let image = notification.object as! UIImage
         self.uploadBlob(data: image.jpegData(compressionQuality: 0.8)!, callback: { error, hash in
             if let hash = hash {
                 print("Uploaded image: \(hash)")
@@ -84,8 +75,6 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
                 print("Error: \(error ?? JSError.uploadBlobFailed("missing hash"))")
             }
         })
-        // TODO: Does it make sense?
-        self.dismiss(animated: true, completion: nil)
     }
 
     func uploadBlob(data: Data, callback: @escaping (Error?, String?) -> Void) {

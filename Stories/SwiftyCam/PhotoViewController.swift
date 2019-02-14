@@ -15,6 +15,10 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 
 import UIKit
 
+extension NSNotification.Name {
+    static let DidSelectPhoto = Notification.Name("DidSelectPhoto")
+}
+
 class PhotoViewController: UIViewController {
 
     @IBOutlet weak var backgroundImageView: UIImageView!
@@ -29,6 +33,11 @@ class PhotoViewController: UIViewController {
 		super.viewDidLoad()
 
         self.backgroundImageView.image = image
+    }
+
+    @IBAction func send(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+        NotificationCenter.default.post(name: .DidSelectPhoto, object: image)
     }
 
     @IBAction func cancel(_ sender: Any) {
