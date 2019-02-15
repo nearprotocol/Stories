@@ -19,6 +19,11 @@
 		D599186322154829000932CE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D599186222154829000932CE /* Main.storyboard */; };
 		D5991867221558CA000932CE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D5991866221558CA000932CE /* Assets.xcassets */; };
 		D599186922155DE5000932CE /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D599186822155DE5000932CE /* ContainerViewController.swift */; };
+		D599186E2216A96F000932CE /* ContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D599186B2216A96F000932CE /* ContentViewController.swift */; };
+		D599186F2216A96F000932CE /* PreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D599186C2216A96F000932CE /* PreViewController.swift */; };
+		D59918A12216AA14000932CE /* ARModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D599189D2216AA14000932CE /* ARModel.swift */; };
+		D59918A22216AA14000932CE /* SegmentedProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D599189E2216AA14000932CE /* SegmentedProgressBar.swift */; };
+		D59918A32216AA14000932CE /* ARSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D599189F2216AA14000932CE /* ARSupport.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +43,11 @@
 		D599186222154829000932CE /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		D5991866221558CA000932CE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D599186822155DE5000932CE /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
+		D599186B2216A96F000932CE /* ContentViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentViewController.swift; sourceTree = "<group>"; };
+		D599186C2216A96F000932CE /* PreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreViewController.swift; sourceTree = "<group>"; };
+		D599189D2216AA14000932CE /* ARModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ARModel.swift; sourceTree = "<group>"; };
+		D599189E2216AA14000932CE /* SegmentedProgressBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegmentedProgressBar.swift; sourceTree = "<group>"; };
+		D599189F2216AA14000932CE /* ARSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ARSupport.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +100,7 @@
 		D50B1994220B6D5B0031B7C5 /* Stories */ = {
 			isa = PBXGroup;
 			children = (
+				D599186A2216A940000932CE /* ARStories */,
 				D5991859221547B5000932CE /* SwiftyCam */,
 				D50B19AA220B9D3D0031B7C5 /* web */,
 				D50B1995220B6D5B0031B7C5 /* AppDelegate.swift */,
@@ -112,6 +123,26 @@
 				D599185C221547E7000932CE /* VideoViewController.swift */,
 			);
 			path = SwiftyCam;
+			sourceTree = "<group>";
+		};
+		D599186A2216A940000932CE /* ARStories */ = {
+			isa = PBXGroup;
+			children = (
+				D599189B2216A9CA000932CE /* Utils */,
+				D599186B2216A96F000932CE /* ContentViewController.swift */,
+				D599186C2216A96F000932CE /* PreViewController.swift */,
+			);
+			path = ARStories;
+			sourceTree = "<group>";
+		};
+		D599189B2216A9CA000932CE /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				D599189D2216AA14000932CE /* ARModel.swift */,
+				D599189F2216AA14000932CE /* ARSupport.swift */,
+				D599189E2216AA14000932CE /* SegmentedProgressBar.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -235,12 +266,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D59918A12216AA14000932CE /* ARModel.swift in Sources */,
+				D599186E2216A96F000932CE /* ContentViewController.swift in Sources */,
+				D599186F2216A96F000932CE /* PreViewController.swift in Sources */,
+				D59918A32216AA14000932CE /* ARSupport.swift in Sources */,
 				D599185F221547E8000932CE /* SwiftyRecordButton.swift in Sources */,
 				D50B1998220B6D5B0031B7C5 /* WebWrapperViewController.swift in Sources */,
 				D599186922155DE5000932CE /* ContainerViewController.swift in Sources */,
 				D50B1996220B6D5B0031B7C5 /* AppDelegate.swift in Sources */,
 				D5991860221547E8000932CE /* VideoViewController.swift in Sources */,
 				D599185E221547E8000932CE /* CameraViewController.swift in Sources */,
+				D59918A22216AA14000932CE /* SegmentedProgressBar.swift in Sources */,
 				D5991861221547E8000932CE /* PhotoViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -45,6 +45,21 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
 		super.viewDidAppear(animated)
         captureButton.delegate = self
 	}
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "SeeAll" {
+            let contentViewController = segue.destination as! ContentViewController
+            contentViewController.currentIndex = 0
+            contentViewController.pages = [UserDetails(userDetails: [
+                "name" : "All Stories",
+                "imageUrl" : "https://picsum.photos/100/100",
+                "content": [[
+                    "type": "image",
+                    "url": "https://picsum.photos/100/100"
+                ]]
+            ])]
+        }
+    }
     
     func swiftyCamSessionDidStartRunning(_ swiftyCam: SwiftyCamViewController) {
         print("Session did start running")
