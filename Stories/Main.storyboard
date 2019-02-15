@@ -187,8 +187,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" image="cancel"/>
                                 <connections>
-                                    <action selector="cancel" destination="npq-ee-RlC" eventType="touchUpInside" id="CvL-1d-Lx2"/>
-                                    <action selector="cancel:" destination="npq-ee-RlC" eventType="touchUpInside" id="pYn-cx-8X9"/>
+                                    <action selector="cancel:" destination="npq-ee-RlC" eventType="touchUpInside" id="ZA6-8x-bqP"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bJV-4w-9N9">
@@ -199,7 +198,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
                                 <connections>
-                                    <action selector="send:" destination="npq-ee-RlC" eventType="touchUpInside" id="tX8-hT-DZv"/>
+                                    <action selector="send:" destination="npq-ee-RlC" eventType="touchUpInside" id="zoz-MP-19j"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -229,7 +228,7 @@
         <!--Content View Controller-->
         <scene sceneID="nZU-tf-XQU">
             <objects>
-                <viewController storyboardIdentifier="ContentView" modalTransitionStyle="crossDissolve" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2eX-ew-y0A" customClass="ContentViewController" customModule="ARStories" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ContentView" modalTransitionStyle="crossDissolve" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2eX-ew-y0A" customClass="ContentViewController" customModule="Stories" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="rlF-EC-Y3R">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -244,7 +243,7 @@
         <!--Pre View Controller-->
         <scene sceneID="Ui4-NN-drk">
             <objects>
-                <viewController storyboardIdentifier="PreView" useStoryboardIdentifierAsRestorationIdentifier="YES" id="bCs-ns-3Ft" customClass="PreViewController" customModule="ARStories" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PreView" useStoryboardIdentifierAsRestorationIdentifier="YES" id="bCs-ns-3Ft" customClass="PreViewController" customModule="Stories" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="xpu-uE-D6I">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
