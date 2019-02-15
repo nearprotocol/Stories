@@ -25,8 +25,10 @@ struct UserDetails {
 struct Content {
     var type: String
     var url: String
+    var hash: String
     init(element: [String: Any]) {
         type = element["type"] as? String ?? ""
         url = element["url"] as? String ?? ""
+        hash = element["hash"] as? String ?? ""
     }
 }

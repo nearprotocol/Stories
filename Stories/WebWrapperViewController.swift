@@ -11,9 +11,14 @@ import WebKit
 
 enum JSError: Error {
     case uploadBlobFailed(String)
+    case postItemFailed(String)
+    case getRecentItemsFailed(String)
+    case downloadBlobFailed(String)
 }
 
 class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+
+    static var webWrapper: WebWrapperViewController?
 
     var webView: WKWebView!
 
@@ -41,6 +46,8 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        WebWrapperViewController.webWrapper = self
+
         NotificationCenter.default.addObserver(self, selector: #selector(photoTaken(_:)), name: .DidSelectPhoto, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(videoTaken(_:)), name: .DidSelectVideo, object: nil)
 
@@ -63,7 +70,7 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
     @objc func photoTaken(_ notification: Notification) {
         let image = notification.object as! UIImage
         self.uploadBlob(data: image.jpegData(compressionQuality: 0.8)!, callback: { error, hash in
-            self.uploadedBlob(error: error, hash: hash)
+            self.uploadedBlob(error: error, type: "image", hash: hash)
         })
     }
 
@@ -72,17 +79,17 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
         do {
             let data = try Data.init(contentsOf: videoURL)
             self.uploadBlob(data: data, callback: { error, hash in
-                self.uploadedBlob(error: error, hash: hash)
+                self.uploadedBlob(error: error, type: "video", hash: hash)
             })
         } catch {
             print("Unexpected error: \(error)")
         }
     }
 
-    func uploadedBlob(error: Error?, hash: String?) {
-        if let hash = hash {
+    func uploadedBlob(error: Error?, type: String?, hash: String?) {
+        if let hash = hash, let type = type {
             print("Uploaded blob: \(hash)")
-            self.postVideo(hash: hash, callback: { error in
+            self.postItem(type: type, hash: hash, callback: { error in
                 if let error = error {
                     print("Error posting to Near: \(error)")
                     return
@@ -109,17 +116,40 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
         }
     }
 
-    func postVideo(hash: String, callback: @escaping (Error?) -> Void) {
+    func postItem(type: String, hash: String, callback: @escaping (Error?) -> Void) {
         requestId = requestId + 1
-        webView.evaluateJavaScript("postVideo(\(requestId), '\(hash)')")
+        webView.evaluateJavaScript("postItem(\(requestId), '\(type)', '\(hash)')")
         callbacksByRequestId[requestId] = { error, response in
             if let error = error as? String {
-                callback(JSError.uploadBlobFailed(error))
+                callback(JSError.postItemFailed(error))
             } else {
                 callback(nil)
             }
         }
     }
 
+    func getRecentItems(callback: @escaping (Error?, [Content]?) -> Void) {
+        requestId = requestId + 1
+        webView.evaluateJavaScript("getRecentItems(\(requestId))")
+        callbacksByRequestId[requestId] = { error, response in
+            if let error = error as? String {
+                callback(JSError.getRecentItemsFailed(error), nil)
+            } else {
+                callback(nil, (response as! NSArray).map { Content(element: $0 as! [String : Any]) })
+            }
+        }
+    }
+
+    func downloadBlob(hash: String, callback: @escaping (Error?, NSData?) -> Void) {
+        requestId = requestId + 1
+        webView.evaluateJavaScript("downloadBlob(\(requestId), '\(hash)')")
+        callbacksByRequestId[requestId] = { error, response in
+            if let error = error as? String {
+                callback(JSError.downloadBlobFailed(error), nil)
+            } else {
+                callback(nil, NSData.init(base64Encoded: (response as! String))!)
+            }
+        }
+    }
 }
 

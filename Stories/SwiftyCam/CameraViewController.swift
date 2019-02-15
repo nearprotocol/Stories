@@ -18,8 +18,10 @@ import UIKit
 import AVFoundation
 import SwiftyCam
 
+
 class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDelegate {
-    
+
+    @IBOutlet weak var seeAllButton: UIButton!
     @IBOutlet weak var captureButton    : SwiftyRecordButton!
     @IBOutlet weak var flipCameraButton : UIButton!
     @IBOutlet weak var flashButton      : UIButton!
@@ -35,6 +37,8 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
         flashMode = .auto
         flashButton.setImage(#imageLiteral(resourceName: "flashauto"), for: UIControl.State())
         captureButton.buttonEnabled = false
+
+
 	}
 
 	override var prefersStatusBarHidden: Bool {
