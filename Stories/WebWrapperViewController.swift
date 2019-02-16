@@ -24,6 +24,7 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
 
     var requestId = 0
     var callbacksByRequestId: [Int: (Any?, Any?) -> Void] = [:]
+    var recentItems: [Content] = []
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         print("message.body type: \(type(of: message.body))")
@@ -32,8 +33,8 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
         let method = body["method"]! as! String
         switch method {
         case "loaded":
-            // TODO: handle this, e.g. by delaying all actual calls until loaded
-            print("IPFS ready")
+            print("Web wrapper ready")
+            loadRecentItems()
         default:
             let requestId = body["id"]! as! Int
             let response = body["response"]
@@ -136,6 +137,41 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
                 callback(JSError.getRecentItemsFailed(error), nil)
             } else {
                 callback(nil, (response as! NSArray).map { Content(element: $0 as! [String : Any]) })
+            }
+        }
+    }
+
+    func loadRecentItems() {
+        getRecentItems { (error, content) in
+            if let error = error {
+                print("Error loading recent items: \(error)")
+                return
+            }
+            self.recentItems = content!
+
+            let fileManager = FileManager.default
+            // TODO: Should this use cache dir? Document dir only for own blobs?
+            let documentsUrl = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let blobUrl = documentsUrl.appendingPathComponent("blobs")
+            if !fileManager.fileExists(atPath: blobUrl.path) {
+                do {
+                    try fileManager.createDirectory(at: blobUrl, withIntermediateDirectories: false)
+                } catch {
+                    print("Unexpected error: \(error)")
+                }
+            }
+
+            for item in self.recentItems {
+                let itemBlobUrl = blobUrl.appendingPathComponent(item.hash)
+                if fileManager.fileExists(atPath: itemBlobUrl.path) {
+                    print("Downloading: \(item.hash)")
+                    self.downloadBlob(hash: item.hash, callback: { (error, blob) in
+                        blob!.write(to: itemBlobUrl, atomically: true)
+                        print("Downloaded: \(item.hash)")
+                    })
+                } else {
+                    print("Already downloaded: \(item.hash)")
+                }
             }
         }
     }

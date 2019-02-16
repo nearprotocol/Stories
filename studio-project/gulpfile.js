@@ -1,7 +1,16 @@
 const gulp = require("gulp");
 
-gulp.task("build:bindings", callback => {
-  console.log("build:bindings impl");
+gulp.task("build:model", callback => {
+  const asc = require("assemblyscript/bin/asc");
+  asc.main([
+    "model.ts",
+    "--baseDir", "assembly",
+    "--nearFile", "../out/model.near.ts", 
+    "--measure"
+  ], callback);
+});
+
+gulp.task("build:bindings", ["build:model"], callback => {
   const asc = require("assemblyscript/bin/asc");
   asc.main([
     "main.ts",
@@ -13,12 +22,11 @@ gulp.task("build:bindings", callback => {
 });
 
 gulp.task("build", ["build:bindings"], callback => {
-  console.log("build impl");
-
   const asc = require("assemblyscript/bin/asc");
   asc.main([
     "../out/main.near.ts",
     "--baseDir", "assembly",
+    "-O3",
     "--binaryFile", "../out/main.wasm",
     "--sourceMap",
     "--measure"

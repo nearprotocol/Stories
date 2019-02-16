@@ -32,7 +32,7 @@ function _postMessage(message) {
 const config = {
     baseUrl: 'https://studio.nearprotocol.com/contract-api',
     nodeUrl: 'https://studio.nearprotocol.com/devnet',
-    contractName: 'studio-8h5y41o9o'
+    contractName: 'studio-edd5ohx8r'
 };
 Cookies.set('fiddleConfig', config);
 
@@ -41,7 +41,7 @@ async function initNear() {
     const nearUserId = nearlib.dev.myAccountId;
     return near.loadContract(config.contractName, {
         // NOTE: This configuration only needed while NEAR is still in development
-        viewMethods: ["getRecentVideos"],
+        viewMethods: ["getRecentItems"],
         changeMethods: ["postItem"],
         sender: nearUserId
     });
@@ -50,7 +50,7 @@ const initNearPromise = initNear();
 
 function postItem(id, type, hash) {
     initNearPromise.then(contract => {
-        contract.postItem({ type, hash }).then(() => {
+        contract.postItem({ item: { type, hash } }).then(() => {
             _postMessage({ id, method: 'postItem' });
         }, (error) => {
             _postMessage({ id, method: 'postItem', error: error && error.toString() });
@@ -58,7 +58,7 @@ function postItem(id, type, hash) {
     });
 }
 
-function getRecentItems() {
+function getRecentItems(id) {
     initNearPromise.then(contract => {
         contract.getRecentItems().then((items) => {
             _postMessage({ id, method: 'getRecentItems', response: items });
@@ -68,4 +68,6 @@ function getRecentItems() {
     }); 
 }
 
-Object.assign(window, { uploadBlob, postVideo })
+Object.assign(window, { uploadBlob, downloadBlob, postItem, getRecentItems });
+
+_postMessage({ method: 'loaded' });

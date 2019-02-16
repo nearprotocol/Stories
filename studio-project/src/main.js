@@ -8,8 +8,8 @@ async function doInitContract() {
   window.near = await nearlib.dev.connect();
   
   window.contract = await near.loadContract(config.contractName, {
-    viewMethods: ["getLastVideos"],
-    changeMethods: ["postVideo"],
+    viewMethods: ["getRecentItems"],
+    changeMethods: ["postItem"],
     sender: nearlib.dev.myAccountId
   });
 }
@@ -39,14 +39,14 @@ const trackerOpts = {
 const torrentClient = new WebTorrent({ dht: true, tracker: trackerOpts });
 
 async function loadVideos() {
-  const hashes = await contract.getLastVideos();
-  hashes.reverse();
-  console.log('hashes', hashes);
+  const items = await contract.getRecentItems();
+  items.reverse();
+  console.log('items', items);
   const container = document.querySelector('.container');
-  for (let hash of hashes) {
-    console.log('loading: ', hash);
+  for (let item of items) {
+    console.log('loading: ', item.hash);
     let torrent = await new Promise((resolved, rejected) => {
-      torrentClient.add(hash, torrentOpts, (torrent) => {
+      torrentClient.add(item.hash, torrentOpts, (torrent) => {
         resolved(torrent);
       });
     });
@@ -56,11 +56,17 @@ async function loadVideos() {
         resolved(buffer);
       });
     });
-    console.log('loaded: ', hash);
+    console.log('loaded: ', item.hash);
     const url = URL.createObjectURL(new Blob([buffer]));
-    const img = document.createElement('img');
-    img.src = url;
-    container.appendChild(img);
+    if (item.type == "image") {
+      const img = document.createElement('img');
+      img.src = url;
+      container.appendChild(img);
+    } else {
+      const video = document.createElement('video');
+      video.src = url;
+      container.appendChild(video);
+    }
   }
 }
 
