@@ -7,7 +7,22 @@
 
 const WebTorrent = require('webtorrent');
 
-const torrentClient = new WebTorrent({ dht: true });
+const trackers = ['wss://tracker.btorrent.xyz', 'wss://tracker.openwebtorrent.com', 'wss://tracker.fastcast.nz']
+const rtcConfig = {
+  'iceServers': [
+    {
+      'urls': 'stun:stun.l.google.com:19305'
+    }
+  ]
+}
+const torrentOpts = {
+  announce: trackers
+}
+const trackerOpts = {
+  announce: trackers,
+  rtcConfig: rtcConfig
+}
+const torrentClient = new WebTorrent({ dht: true, tracker: trackerOpts });
 
 function uploadBlob(id, blobBase64) {
     const blob = new Buffer(blobBase64, 'base64');
@@ -18,7 +33,7 @@ function uploadBlob(id, blobBase64) {
 }
 
 function downloadBlob(id, hash) {
-    torrentClient.add(hash, (torrent) => {
+    torrentClient.add(hash, torrentOpts, (torrent) => {
         console.log('downloadBlob torrent', torrent);
         torrent.files[0].getBuffer((error, buffer) => {
             _postMessage({ id, method: 'downloadBlob', error, response: buffer && buffer.toString('base64')});
@@ -70,7 +85,7 @@ function getRecentItems(id) {
     }); 
 }
 
-Object.assign(window, { uploadBlob, downloadBlob, postItem, getRecentItems });
+Object.assign(window, { uploadBlob, downloadBlob, postItem, getRecentItems, torrentClient });
 
 _postMessage({ method: 'loaded' });
 

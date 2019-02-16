@@ -25,7 +25,9 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
     @IBOutlet weak var captureButton    : SwiftyRecordButton!
     @IBOutlet weak var flipCameraButton : UIButton!
     @IBOutlet weak var flashButton      : UIButton!
-    
+
+    var items : [Content] = []
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
         shouldPrompToAppSettings = true
@@ -38,8 +40,19 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
         flashButton.setImage(#imageLiteral(resourceName: "flashauto"), for: UIControl.State())
         captureButton.buttonEnabled = false
 
-
+        NotificationCenter.default.addObserver(self, selector: #selector(didUpdateLoadedItems(_:)), name: NSNotification.Name.DidUpdateLoadedItems, object: nil)
 	}
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc func didUpdateLoadedItems(_ notification: Notification) {
+        self.items = notification.object as! [Content]
+        if items.count > 0 {
+            self.seeAllButton.isHidden = false
+        }
+    }
 
 	override var prefersStatusBarHidden: Bool {
 		return true
@@ -56,12 +69,9 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
             contentViewController.currentIndex = 0
             contentViewController.pages = [UserDetails(userDetails: [
                 "name" : "All Stories",
-                "imageUrl" : "https://picsum.photos/100/100",
-                "content": [[
-                    "type": "image",
-                    "url": "https://picsum.photos/100/100"
-                ]]
+                "imageUrl" : "https://picsum.photos/100/100"
             ])]
+            contentViewController.pages.first!.content = self.items
         }
     }
     

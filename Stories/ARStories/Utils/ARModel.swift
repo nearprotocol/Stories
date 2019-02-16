@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UserDetails {
+@objc class UserDetails: NSObject {
     var name: String = ""
     var imageUrl: String = ""
     var content: [Content] = []
@@ -22,13 +22,13 @@ struct UserDetails {
     }
 }
 
-struct Content {
+@objc class Content: NSObject {
     var type: String
     var url: String
-    var hash: String
+    var contentHash: String
     init(element: [String: Any]) {
         type = element["type"] as? String ?? ""
         url = element["url"] as? String ?? ""
-        hash = element["hash"] as? String ?? ""
+        contentHash = element["hash"] as? String ?? ""
     }
 }

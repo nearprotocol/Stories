@@ -16,6 +16,10 @@ enum JSError: Error {
     case downloadBlobFailed(String)
 }
 
+extension NSNotification.Name {
+    static let DidUpdateLoadedItems = Notification.Name("DidUpdateLoadedItems")
+}
+
 class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     static var webWrapper: WebWrapperViewController?
@@ -25,6 +29,7 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
     var requestId = 0
     var callbacksByRequestId: [Int: (Any?, Any?) -> Void] = [:]
     var recentItems: [Content] = []
+    var loadedItems: [Content] = []
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         print("message.body type: \(type(of: message.body))")
@@ -162,15 +167,21 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
             }
 
             for item in self.recentItems {
-                let itemBlobUrl = blobUrl.appendingPathComponent(item.hash)
-                if fileManager.fileExists(atPath: itemBlobUrl.path) {
-                    print("Downloading: \(item.hash)")
-                    self.downloadBlob(hash: item.hash, callback: { (error, blob) in
+                let itemBlobUrl = blobUrl.appendingPathComponent(item.contentHash)
+                if !fileManager.fileExists(atPath: itemBlobUrl.path) {
+                    print("Downloading: \(item.contentHash)")
+                    self.downloadBlob(hash: item.contentHash, callback: { (error, blob) in
                         blob!.write(to: itemBlobUrl, atomically: true)
-                        print("Downloaded: \(item.hash)")
+                        print("Downloaded: \(item.contentHash)")
+                        item.url = itemBlobUrl.absoluteString
+                        self.loadedItems.append(item)
+                        NotificationCenter.default.post(name: NSNotification.Name.DidUpdateLoadedItems, object: self.loadedItems)
                     })
                 } else {
-                    print("Already downloaded: \(item.hash)")
+                    print("Already downloaded: \(item.contentHash)")
+                    item.url = itemBlobUrl.absoluteString
+                    self.loadedItems.append(item)
+                    NotificationCenter.default.post(name: NSNotification.Name.DidUpdateLoadedItems, object: self.loadedItems)
                 }
             }
         }
