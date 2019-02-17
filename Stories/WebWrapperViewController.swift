@@ -29,17 +29,34 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
     var requestId = 0
     var callbacksByRequestId: [Int: (Any?, Any?) -> Void] = [:]
     var recentItems: [Content] = []
-    var loadedItems: [Content] = []
-    
+
+    var loadedItems: Set<Content> = []
+
+    // var callbacksOnLoaded: [() -> Void] = []
+
+    let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    // TODO: Should this use cache dir? Document dir only for own blobs?
+    lazy var blobsUrl = self.documentsUrl.appendingPathComponent("blobs")
+
+    lazy var loadRecentTimer = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: true) { _ in
+        self.loadRecentItems()
+    }
+
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         print("message.body type: \(type(of: message.body))")
         let body = message.body as! NSDictionary
-        print("body: \(body)")
+        print("body: \(body.description.prefix(500))")
         let method = body["method"]! as! String
         switch method {
         case "loaded":
             print("Web wrapper ready")
-            loadRecentItems()
+            self.seedDownloadedBlobs()
+            self.loadRecentTimer.fire()
+            /*
+            while callbacksOnLoaded.count > 0 {
+                callbacksOnLoaded.popLast()!()
+            }
+            */
         default:
             let requestId = body["id"]! as! Int
             let response = body["response"]
@@ -62,33 +79,56 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
         webView = WKWebView(frame: CGRect.zero, configuration: config)
-        self.view.addSubview(webView)
+    }
 
-        let webUrl = Bundle.main.bundleURL.appendingPathComponent("web/")
-        webView.loadFileURL(webUrl.appendingPathComponent("index.html"),
-                            allowingReadAccessTo: webUrl)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        if !self.view.subviews.contains(webView) {
+            self.view.addSubview(webView)
+        }
+
+        webView.evaluateJavaScript("isLoaded", completionHandler: { (isLoaded, error) in
+            if isLoaded == nil {
+                let webUrl = Bundle.main.bundleURL.appendingPathComponent("web/")
+                self.webView.loadFileURL(webUrl.appendingPathComponent("index.html"),
+                                    allowingReadAccessTo: webUrl)
+            }
+        })
     }
 
     deinit {
         NotificationCenter.default.removeObserver(self)
+        self.loadRecentTimer.invalidate()
     }
 
     @objc func photoTaken(_ notification: Notification) {
-        let image = notification.object as! UIImage
-        self.uploadBlob(data: image.jpegData(compressionQuality: 0.8)!, callback: { error, hash in
-            self.uploadedBlob(error: error, type: "image", hash: hash)
-        })
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+            let image = notification.object as! UIImage
+            let data = image.jpegData(compressionQuality: 0.8)!
+            self.uploadBlob(data: data, callback: { error, hash in
+                self.uploadedBlob(error: error, type: "image", hash: hash)
+                if let hash = hash {
+                    self.saveBlob(type: "image", hash: hash, blob: data)
+                }
+            })
+        }
     }
 
     @objc func videoTaken(_ notification: Notification) {
-        let videoURL = notification.object as! URL
-        do {
-            let data = try Data.init(contentsOf: videoURL)
-            self.uploadBlob(data: data, callback: { error, hash in
-                self.uploadedBlob(error: error, type: "video", hash: hash)
-            })
-        } catch {
-            print("Unexpected error: \(error)")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+            let videoURL = notification.object as! URL
+            do {
+                let data = try Data.init(contentsOf: videoURL)
+                self.uploadBlob(data: data, callback: { error, hash in
+                    self.uploadedBlob(error: error, type: "video", hash: hash)
+                    if let hash = hash {
+                        self.saveBlob(type: "video", hash: hash, blob: data)
+                    }
+                })
+            } catch {
+                print("Unexpected error: \(error)")
+            }
         }
     }
 
@@ -112,8 +152,8 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
         requestId = requestId + 1
         webView.evaluateJavaScript("uploadBlob(\(requestId), '\(base64String)')")
         callbacksByRequestId[requestId] = { error, response in
-            if let dataDict = response as? NSDictionary {
-                callback(nil, dataDict["hash"] as? String)
+            if let dataDict = response as? NSDictionary, let hash = dataDict["hash"] as? String {
+                callback(nil, hash)
             } else if let error = error as? String {
                 callback(JSError.uploadBlobFailed(error), nil)
             } else {
@@ -146,7 +186,47 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
         }
     }
 
+    func saveBlob(type: String, hash: String, blob: Data) {
+        do {
+            let itemBlobUrl = self.blobsUrl
+                .appendingPathComponent(hash)
+                .appendingPathExtension(type == "image" ? "jpg" : "mp4")
+            print("Saving blob \(hash) to \(itemBlobUrl)")
+            try blob.write(to: itemBlobUrl, options: .atomicWrite)
+        } catch {
+            print("Unexpected error: \(error)")
+        }
+    }
+
+    func seedDownloadedBlobs() {
+        do {
+            let fileManager = FileManager.default
+            let blobPaths = try fileManager.contentsOfDirectory(atPath: self.blobsUrl.path)
+            for path in blobPaths {
+                DispatchQueue.global(qos: .background).async {
+                    do {
+                        let blob = try Data.init(contentsOf: self.blobsUrl.appendingPathComponent(path))
+                        DispatchQueue.main.async {
+                            self.uploadBlob(data: blob, callback: { (error, hash) in
+                                if let error = error {
+                                    print("Error seeding: \(error)")
+                                } else {
+                                    print("Seeding \(hash!)")
+                                }
+                            })
+                        }
+                    } catch {
+                        print("Unexpected error: \(error)")
+                    }
+                }
+            }
+        } catch {
+            print("Unexpected error: \(error)")
+        }
+    }
+
     func loadRecentItems() {
+        print("Loading recent items")
         getRecentItems { (error, content) in
             if let error = error {
                 print("Error loading recent items: \(error)")
@@ -155,46 +235,46 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
             self.recentItems = content!
 
             let fileManager = FileManager.default
-            // TODO: Should this use cache dir? Document dir only for own blobs?
-            let documentsUrl = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
-            let blobUrl = documentsUrl.appendingPathComponent("blobs")
-            if !fileManager.fileExists(atPath: blobUrl.path) {
+            if !fileManager.fileExists(atPath: self.blobsUrl.path) {
                 do {
-                    try fileManager.createDirectory(at: blobUrl, withIntermediateDirectories: false)
+                    try fileManager.createDirectory(at: self.blobsUrl, withIntermediateDirectories: false)
                 } catch {
                     print("Unexpected error: \(error)")
                 }
             }
 
             for item in self.recentItems {
-                let itemBlobUrl = blobUrl.appendingPathComponent(item.contentHash)
+                let itemBlobUrl = self.blobsUrl
+                    .appendingPathComponent(item.contentHash)
+                    .appendingPathExtension(item.type == "image" ? "jpg" : "mp4")
                 if !fileManager.fileExists(atPath: itemBlobUrl.path) {
                     print("Downloading: \(item.contentHash)")
+                    // TODO: Check if already downloading and short-circuit
                     self.downloadBlob(hash: item.contentHash, callback: { (error, blob) in
-                        blob!.write(to: itemBlobUrl, atomically: true)
                         print("Downloaded: \(item.contentHash)")
+                        self.saveBlob(type: item.type, hash: item.contentHash, blob: blob!)
                         item.url = itemBlobUrl.absoluteString
-                        self.loadedItems.append(item)
+                        self.loadedItems.update(with: item)
                         NotificationCenter.default.post(name: NSNotification.Name.DidUpdateLoadedItems, object: self.loadedItems)
                     })
                 } else {
                     print("Already downloaded: \(item.contentHash)")
                     item.url = itemBlobUrl.absoluteString
-                    self.loadedItems.append(item)
+                    self.loadedItems.update(with: item)
                     NotificationCenter.default.post(name: NSNotification.Name.DidUpdateLoadedItems, object: self.loadedItems)
                 }
             }
         }
     }
 
-    func downloadBlob(hash: String, callback: @escaping (Error?, NSData?) -> Void) {
+    func downloadBlob(hash: String, callback: @escaping (Error?, Data?) -> Void) {
         requestId = requestId + 1
         webView.evaluateJavaScript("downloadBlob(\(requestId), '\(hash)')")
         callbacksByRequestId[requestId] = { error, response in
             if let error = error as? String {
                 callback(JSError.downloadBlobFailed(error), nil)
             } else {
-                callback(nil, NSData.init(base64Encoded: (response as! String))!)
+                callback(nil, Data.init(base64Encoded: (response as! String))!)
             }
         }
     }

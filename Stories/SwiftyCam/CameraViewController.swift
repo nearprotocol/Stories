@@ -48,7 +48,7 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
     }
 
     @objc func didUpdateLoadedItems(_ notification: Notification) {
-        self.items = notification.object as! [Content]
+        self.items = Array(notification.object as! Set<Content>)
         if items.count > 0 {
             self.seeAllButton.isHidden = false
         }

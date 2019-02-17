@@ -86,3 +86,5 @@ function getRecentItems(id) {
 Object.assign(window, { uploadBlob, downloadBlob, postItem, getRecentItems, torrentClient });
 
 _postMessage({ method: 'loaded' });
+
+const isLoaded = true;

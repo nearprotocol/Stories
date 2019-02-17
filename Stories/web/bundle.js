@@ -89,6 +89,7 @@ Object.assign(window, { uploadBlob, downloadBlob, postItem, getRecentItems, torr
 
 _postMessage({ method: 'loaded' });
 
+const isLoaded = true;
 }).call(this,require("buffer").Buffer)
 },{"buffer":199,"webtorrent":185}],2:[function(require,module,exports){
 const ADDR_RE = /^\[?([^\]]+)\]?:(\d+)$/ // ipv4/ipv6/hostname + port

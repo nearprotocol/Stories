@@ -122,23 +122,26 @@ class PreViewController: UIViewController, SegmentedProgressBarDelegate {
             self.SPB.duration = 5
             self.imagePreview.isHidden = false
             self.videoView.isHidden = true
-            self.imagePreview.imageFromServerURL(item[index].url)
+            self.imagePreview.imageFromServerURL(item[index].url!)
         } else {
             self.imagePreview.isHidden = true
             self.videoView.isHidden = false
             
             resetPlayer()
-            guard let url = NSURL(string: item[index].url) as URL? else {return}
+            guard let url = NSURL(string: item[index].url!) as URL? else {return}
             self.player = AVPlayer(url: url)
             
             let videoLayer = AVPlayerLayer(player: self.player)
             videoLayer.frame = view.bounds
-            videoLayer.videoGravity = .resizeAspect
+            videoLayer.videoGravity = .resizeAspectFill
             self.videoView.layer.addSublayer(videoLayer)
             
             let asset = AVAsset(url: url)
             let duration = asset.duration
-            let durationTime = CMTimeGetSeconds(duration)
+            var durationTime = CMTimeGetSeconds(duration)
+            if durationTime == 0.0 {
+                durationTime = 5
+            }
             
             self.SPB.duration = durationTime
             self.player.play()
@@ -151,7 +154,7 @@ class PreViewController: UIViewController, SegmentedProgressBarDelegate {
         if item[index].type == "image" {
             retVal = 5.0
         } else {
-            guard let url = NSURL(string: item[index].url) as URL? else { return retVal }
+            guard let url = NSURL(string: item[index].url!) as URL? else { return retVal }
             let asset = AVAsset(url: url)
             let duration = asset.duration
             retVal = CMTimeGetSeconds(duration)

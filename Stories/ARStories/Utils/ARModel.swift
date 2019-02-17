@@ -24,11 +24,23 @@ import Foundation
 
 @objc class Content: NSObject {
     var type: String
-    var url: String
     var contentHash: String
+
+    var url: String?
+
     init(element: [String: Any]) {
         type = element["type"] as? String ?? ""
-        url = element["url"] as? String ?? ""
         contentHash = element["hash"] as? String ?? ""
+    }
+
+    override var hash: Int {
+        return contentHash.hashValue
+    }
+
+    override func isEqual(_ object: Any?) -> Bool {
+        if let otherObject = object as? Content {
+            return self.contentHash == otherObject.contentHash
+        }
+        return false
     }
 }
