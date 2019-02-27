@@ -83,8 +83,7 @@ function getRecentItems(id) {
     }); 
 }
 
-Object.assign(window, { uploadBlob, downloadBlob, postItem, getRecentItems, torrentClient });
+const isLoaded = true;
+Object.assign(window, { uploadBlob, downloadBlob, postItem, getRecentItems, torrentClient, isLoaded });
 
 _postMessage({ method: 'loaded' });
-
-const isLoaded = true;

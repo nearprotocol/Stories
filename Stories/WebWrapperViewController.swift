@@ -32,7 +32,7 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
 
     var loadedItems: Set<Content> = []
 
-    // var callbacksOnLoaded: [() -> Void] = []
+    var callbacksOnLoaded: [() -> Void] = []
 
     let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     // TODO: Should this use cache dir? Document dir only for own blobs?
@@ -40,6 +40,7 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
 
     lazy var loadRecentTimer = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: true) { _ in
         self.loadRecentItems()
+        self.seedDownloadedBlobs()
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
@@ -50,13 +51,9 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
         switch method {
         case "loaded":
             print("Web wrapper ready")
-            self.seedDownloadedBlobs()
-            self.loadRecentTimer.fire()
-            /*
             while callbacksOnLoaded.count > 0 {
                 callbacksOnLoaded.popLast()!()
             }
-            */
         default:
             let requestId = body["id"]! as! Int
             let response = body["response"]
@@ -79,22 +76,8 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
         webView = WKWebView(frame: CGRect.zero, configuration: config)
-    }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        if !self.view.subviews.contains(webView) {
-            self.view.addSubview(webView)
-        }
-
-        webView.evaluateJavaScript("isLoaded", completionHandler: { (isLoaded, error) in
-            if isLoaded == nil {
-                let webUrl = Bundle.main.bundleURL.appendingPathComponent("web/")
-                self.webView.loadFileURL(webUrl.appendingPathComponent("index.html"),
-                                    allowingReadAccessTo: webUrl)
-            }
-        })
+        self.loadRecentTimer.fire()
     }
 
     deinit {
@@ -103,32 +86,28 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
     }
 
     @objc func photoTaken(_ notification: Notification) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-            let image = notification.object as! UIImage
-            let data = image.jpegData(compressionQuality: 0.8)!
-            self.uploadBlob(data: data, callback: { error, hash in
-                self.uploadedBlob(error: error, type: "image", hash: hash)
-                if let hash = hash {
-                    self.saveBlob(type: "image", hash: hash, blob: data)
-                }
-            })
-        }
+        let image = notification.object as! UIImage
+        let data = image.jpegData(compressionQuality: 0.8)!
+        self.uploadBlob(data: data, callback: { error, hash in
+            self.uploadedBlob(error: error, type: "image", hash: hash)
+            if let hash = hash {
+                self.saveBlob(type: "image", hash: hash, blob: data)
+            }
+        })
     }
 
     @objc func videoTaken(_ notification: Notification) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-            let videoURL = notification.object as! URL
-            do {
-                let data = try Data.init(contentsOf: videoURL)
-                self.uploadBlob(data: data, callback: { error, hash in
-                    self.uploadedBlob(error: error, type: "video", hash: hash)
-                    if let hash = hash {
-                        self.saveBlob(type: "video", hash: hash, blob: data)
-                    }
-                })
-            } catch {
-                print("Unexpected error: \(error)")
-            }
+        let videoURL = notification.object as! URL
+        do {
+            let data = try Data.init(contentsOf: videoURL)
+            self.uploadBlob(data: data, callback: { error, hash in
+                self.uploadedBlob(error: error, type: "video", hash: hash)
+                if let hash = hash {
+                    self.saveBlob(type: "video", hash: hash, blob: data)
+                }
+            })
+        } catch {
+            print("Unexpected error: \(error)")
         }
     }
 
@@ -147,11 +126,41 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
         }
     }
 
+    func callJs(code: String, callback: @escaping (Any?, Any?) -> Void) {
+        let oldRequestId = requestId
+        callbacksByRequestId[oldRequestId] = callback
+        requestId = requestId + 1
+
+        self.withLoadedWeb {
+            self.webView.evaluateJavaScript(code) { value, error in
+                if let error = error {
+                    self.callbacksByRequestId.removeValue(forKey: oldRequestId)
+                    callback(error, nil)
+                }
+            }
+        }
+    }
+
+    func withLoadedWeb(callback: @escaping () -> Void) {
+        if !self.view.subviews.contains(webView) {
+            self.view.addSubview(webView)
+        }
+
+        webView.evaluateJavaScript("isLoaded", completionHandler: { (isLoaded, error) in
+            if isLoaded == nil {
+                self.callbacksOnLoaded.append(callback)
+                let webUrl = Bundle.main.bundleURL.appendingPathComponent("web/")
+                self.webView.loadFileURL(webUrl.appendingPathComponent("index.html"),
+                                         allowingReadAccessTo: webUrl)
+            } else {
+                callback()
+            }
+        })
+    }
+
     func uploadBlob(data: Data, callback: @escaping (Error?, String?) -> Void) {
         let base64String = data.base64EncodedString()
-        requestId = requestId + 1
-        webView.evaluateJavaScript("uploadBlob(\(requestId), '\(base64String)')")
-        callbacksByRequestId[requestId] = { error, response in
+        self.callJs(code: "uploadBlob(\(requestId), '\(base64String)')") { error, response in
             if let dataDict = response as? NSDictionary, let hash = dataDict["hash"] as? String {
                 callback(nil, hash)
             } else if let error = error as? String {
@@ -163,9 +172,7 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
     }
 
     func postItem(type: String, hash: String, callback: @escaping (Error?) -> Void) {
-        requestId = requestId + 1
-        webView.evaluateJavaScript("postItem(\(requestId), '\(type)', '\(hash)')")
-        callbacksByRequestId[requestId] = { error, response in
+        self.callJs(code: "postItem(\(requestId), '\(type)', '\(hash)')") { error, response in
             if let error = error as? String {
                 callback(JSError.postItemFailed(error))
             } else {
@@ -175,13 +182,21 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
     }
 
     func getRecentItems(callback: @escaping (Error?, [Content]?) -> Void) {
-        requestId = requestId + 1
-        webView.evaluateJavaScript("getRecentItems(\(requestId))")
-        callbacksByRequestId[requestId] = { error, response in
+        self.callJs(code: "getRecentItems(\(requestId))") { error, response in
             if let error = error as? String {
                 callback(JSError.getRecentItemsFailed(error), nil)
             } else {
                 callback(nil, (response as! NSArray).map { Content(element: $0 as! [String : Any]) })
+            }
+        }
+    }
+
+    func downloadBlob(hash: String, callback: @escaping (Error?, Data?) -> Void) {
+        self.callJs(code: "downloadBlob(\(requestId), '\(hash)')") { error, response in
+            if let error = error as? String {
+                callback(JSError.downloadBlobFailed(error), nil)
+            } else {
+                callback(nil, Data.init(base64Encoded: (response as! String))!)
             }
         }
     }
@@ -263,18 +278,6 @@ class WebWrapperViewController: UIViewController, WKScriptMessageHandler, UIImag
                     self.loadedItems.update(with: item)
                     NotificationCenter.default.post(name: NSNotification.Name.DidUpdateLoadedItems, object: self.loadedItems)
                 }
-            }
-        }
-    }
-
-    func downloadBlob(hash: String, callback: @escaping (Error?, Data?) -> Void) {
-        requestId = requestId + 1
-        webView.evaluateJavaScript("downloadBlob(\(requestId), '\(hash)')")
-        callbacksByRequestId[requestId] = { error, response in
-            if let error = error as? String {
-                callback(JSError.downloadBlobFailed(error), nil)
-            } else {
-                callback(nil, Data.init(base64Encoded: (response as! String))!)
             }
         }
     }
